@@ -69,35 +69,6 @@ func Build(lokiCustomConfigYAMLTmplStr []byte, opts Options) ([]byte, []byte, er
 	return cfg, rcfg, nil
 }
 
-// BuildWithTmpl builds a loki stack configuration files with custom template
-func BuildWithTmpl(lokiConfigTmpl string, opts Options) ([]byte, []byte, error) {
-	// Build loki config yaml with custom template
-	lokiCustomConfigYAMLTmpl, err := template.New("loki-config.yaml").Parse(lokiConfigTmpl)
-	if err != nil {
-		return nil, nil, kverrors.Wrap(err, "failed to create loki configuration YAML template")
-	}
-	w := bytes.NewBuffer(nil)
-	err = lokiCustomConfigYAMLTmpl.Execute(w, opts)
-	if err != nil {
-		return nil, nil, kverrors.Wrap(err, "failed to create loki configuration")
-	}
-	cfg, err := io.ReadAll(w)
-	if err != nil {
-		return nil, nil, kverrors.Wrap(err, "failed to read configuration from buffer")
-	}
-	// Build loki runtime config yaml
-	w = bytes.NewBuffer(nil)
-	err = lokiRuntimeConfigYAMLTmpl.Execute(w, opts)
-	if err != nil {
-		return nil, nil, kverrors.Wrap(err, "failed to create loki runtime configuration")
-	}
-	rcfg, err := io.ReadAll(w)
-	if err != nil {
-		return nil, nil, kverrors.Wrap(err, "failed to read configuration from buffer")
-	}
-	return cfg, rcfg, nil
-}
-
 func yamlBlock(indent string, in reflect.Value) string {
 	inStr := in.String()
 	lines := strings.Split(strings.TrimRight(inStr, "\n"), "\n")
